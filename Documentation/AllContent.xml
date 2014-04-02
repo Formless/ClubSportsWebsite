@@ -1,0 +1,1147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+- phpMyAdmin XML Dump
+- version 3.3.5.1
+- http://www.phpmyadmin.net
+-
+- Host: localhost
+- Generation Time: Apr 30, 2012 at 12:52 PM
+- Server version: 5.1.62
+- PHP Version: 5.3.2-1ubuntu4.14
+-->
+
+<pma_xml_export version="1.0" xmlns:pma="http://www.phpmyadmin.net/some_doc_url/">
+    <!--
+    - Structure schemas
+    -->
+    <pma:structure_schemas>
+        <pma:database name="cs4750em2ae" collation="latin1_swedish_ci" charset="latin1">
+            <pma:table name="arranges">
+                CREATE TABLE `arranges` (
+                  `league_id` int(4) DEFAULT NULL,
+                  `game_id` int(6) NOT NULL DEFAULT '0',
+                  PRIMARY KEY (`game_id`),
+                  KEY `league_id` (`league_id`),
+                  CONSTRAINT `arranges_ibfk_1` FOREIGN KEY (`game_id`) REFERENCES `Game` (`game_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                  CONSTRAINT `arranges_ibfk_2` FOREIGN KEY (`league_id`) REFERENCES `League` (`league_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:table name="Captain">
+                CREATE TABLE `Captain` (
+                  `team_id` int(5) NOT NULL DEFAULT '0',
+                  `captain` varchar(7) DEFAULT NULL,
+                  PRIMARY KEY (`team_id`),
+                  UNIQUE KEY `team_id` (`team_id`),
+                  KEY `captain` (`captain`),
+                  CONSTRAINT `Captain_ibfk_1` FOREIGN KEY (`team_id`) REFERENCES `Team` (`team_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                  CONSTRAINT `Captain_ibfk_2` FOREIGN KEY (`captain`) REFERENCES `User` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:table name="contest">
+                CREATE TABLE `contest` (
+                  `team_id` int(5) NOT NULL DEFAULT '0',
+                  `league_id` int(4) DEFAULT NULL,
+                  PRIMARY KEY (`team_id`),
+                  KEY `league_id` (`league_id`),
+                  CONSTRAINT `contest_ibfk_1` FOREIGN KEY (`team_id`) REFERENCES `Team` (`team_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                  CONSTRAINT `contest_ibfk_2` FOREIGN KEY (`league_id`) REFERENCES `League` (`league_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:table name="divided_into">
+                CREATE TABLE `divided_into` (
+                  `sport_name` varchar(20) DEFAULT NULL,
+                  `league_id` int(4) NOT NULL DEFAULT '0',
+                  PRIMARY KEY (`league_id`),
+                  KEY `sport_name` (`sport_name`),
+                  CONSTRAINT `divided_into_ibfk_1` FOREIGN KEY (`league_id`) REFERENCES `League` (`league_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                  CONSTRAINT `divided_into_ibfk_2` FOREIGN KEY (`sport_name`) REFERENCES `Sport` (`sport_name`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:table name="Game">
+                CREATE TABLE `Game` (
+                  `game_id` int(6) NOT NULL AUTO_INCREMENT,
+                  `game_date` date DEFAULT NULL,
+                  `game_time` time DEFAULT NULL,
+                  `game_location` varchar(20) DEFAULT NULL,
+                  `team1_id` int(5) DEFAULT NULL,
+                  `team2_id` int(5) DEFAULT NULL,
+                  `team1_score` int(3) DEFAULT NULL,
+                  `team2_score` int(3) DEFAULT NULL,
+                  PRIMARY KEY (`game_id`),
+                  UNIQUE KEY `game_id` (`game_id`)
+                ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:view name="leaders">
+                CREATE ALGORITHM=UNDEFINED DEFINER=`cs4750em2ae`@`%` SQL SECURITY DEFINER VIEW `cs4750em2ae`.`leaders` AS select `cs4750em2ae`.`League`.`sport_name` AS `sport_name`,`cs4750em2ae`.`League`.`league_type` AS `league_type`,`cs4750em2ae`.`League`.`league_id` AS `league_id`,`cs4750em2ae`.`Schedule`.`end_date` AS `end_date`,`cs4750em2ae`.`Team`.`team_name` AS `team_name`,`cs4750em2ae`.`Stats`.`wins` AS `wins`,`cs4750em2ae`.`Stats`.`losses` AS `losses`,`cs4750em2ae`.`Stats`.`draws` AS `draws`,`cs4750em2ae`.`Stats`.`ncs` AS `ncs` from ((((`cs4750em2ae`.`Team` join `cs4750em2ae`.`Stats` on((`cs4750em2ae`.`Team`.`team_id` = `cs4750em2ae`.`Stats`.`team_id`))) join `cs4750em2ae`.`League`) join `cs4750em2ae`.`contest` on(((`cs4750em2ae`.`Team`.`team_id` = `cs4750em2ae`.`contest`.`team_id`) and (`cs4750em2ae`.`League`.`league_id` = `cs4750em2ae`.`contest`.`league_id`)))) join `cs4750em2ae`.`Schedule` on((`cs4750em2ae`.`League`.`league_id` = `cs4750em2ae`.`Schedule`.`league_id`))) where (`cs4750em2ae`.`Stats`.`wins` = (select max(`cs4750em2ae`.`Stats`.`wins`) from (((`cs4750em2ae`.`Team` join `cs4750em2ae`.`Stats` on((`cs4750em2ae`.`Team`.`team_id` = `cs4750em2ae`.`Stats`.`team_id`))) join `cs4750em2ae`.`League`) join `cs4750em2ae`.`Schedule` on((`cs4750em2ae`.`League`.`league_id` = `cs4750em2ae`.`Schedule`.`league_id`)))));
+            </pma:view>
+            <pma:table name="League">
+                CREATE TABLE `League` (
+                  `league_id` int(4) NOT NULL AUTO_INCREMENT,
+                  `league_type` varchar(10) NOT NULL,
+                  `sport_name` varchar(20) NOT NULL,
+                  PRIMARY KEY (`league_id`,`sport_name`),
+                  UNIQUE KEY `league_id` (`league_id`),
+                  KEY `sport_name` (`sport_name`),
+                  CONSTRAINT `League_ibfk_1` FOREIGN KEY (`sport_name`) REFERENCES `Sport` (`sport_name`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB AUTO_INCREMENT=334 DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:table name="member_of">
+                CREATE TABLE `member_of` (
+                  `user_id` varchar(7) NOT NULL DEFAULT '',
+                  `team_id` int(5) NOT NULL DEFAULT '0',
+                  PRIMARY KEY (`user_id`,`team_id`),
+                  KEY `team_id` (`team_id`),
+                  CONSTRAINT `member_of_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `User` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                  CONSTRAINT `member_of_ibfk_2` FOREIGN KEY (`team_id`) REFERENCES `Team` (`team_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:table name="Schedule">
+                CREATE TABLE `Schedule` (
+                  `league_id` int(4) NOT NULL DEFAULT '0',
+                  `start_date` date NOT NULL DEFAULT '0000-00-00',
+                  `end_date` date DEFAULT NULL,
+                  `reg_deadline` date DEFAULT NULL,
+                  PRIMARY KEY (`league_id`,`start_date`),
+                  CONSTRAINT `Schedule_ibfk_1` FOREIGN KEY (`league_id`) REFERENCES `League` (`league_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:table name="Sport">
+                CREATE TABLE `Sport` (
+                  `sport_name` varchar(20) NOT NULL,
+                  `min_roster` int(2) NOT NULL,
+                  PRIMARY KEY (`sport_name`),
+                  UNIQUE KEY `sport_name` (`sport_name`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:table name="Stats">
+                CREATE TABLE `Stats` (
+                  `team_id` int(5) NOT NULL DEFAULT '0',
+                  `played` int(2) DEFAULT NULL,
+                  `wins` int(2) DEFAULT NULL,
+                  `losses` int(2) DEFAULT NULL,
+                  `draws` int(2) DEFAULT NULL,
+                  `ncs` int(2) DEFAULT NULL,
+                  PRIMARY KEY (`team_id`),
+                  CONSTRAINT `Stats_ibfk_1` FOREIGN KEY (`team_id`) REFERENCES `Team` (`team_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:table name="Team">
+                CREATE TABLE `Team` (
+                  `team_id` int(5) NOT NULL AUTO_INCREMENT,
+                  `team_name` varchar(20) NOT NULL,
+                  PRIMARY KEY (`team_id`),
+                  UNIQUE KEY `team_id` (`team_id`),
+                  UNIQUE KEY `team_name` (`team_name`)
+                ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:table name="User">
+                CREATE TABLE `User` (
+                  `user_id` varchar(7) NOT NULL,
+                  `password` varchar(32) NOT NULL,
+                  `last_name` varchar(20) NOT NULL,
+                  `first_name` varchar(20) NOT NULL,
+                  `address` varchar(60) DEFAULT NULL,
+                  `phone` varchar(10) DEFAULT NULL,
+                  `email` varchar(30) DEFAULT NULL,
+                  `admin` int(1) DEFAULT NULL,
+                  `gender` int(1) DEFAULT NULL,
+                  PRIMARY KEY (`user_id`),
+                  UNIQUE KEY `user_id` (`user_id`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:procedure name="createTeam">
+                CREATE DEFINER=`cs4750em2ae`@`%` PROCEDURE `createTeam`(IN teamID INT(5), IN userID VARCHAR(7), IN leagueID INT(4))
+                BEGIN
+                	INSERT INTO Captain(team_id, captain) VALUES (teamID, userID );
+                	INSERT INTO member_of(user_id, team_id) VALUES (userID, teamID );
+                	INSERT INTO Stats(team_id, played, wins, losses, draws, ncs) VALUES (teamID, '0', '0',  '0', '0', '0');
+                	INSERT INTO contest(team_id, league_id) VALUES (teamID, leagueID);
+                END
+            </pma:procedure>
+            <pma:procedure name="LeagueTeams">
+                CREATE DEFINER=`cs4750em2ae`@`%` PROCEDURE `LeagueTeams`(IN leagueType VARCHAR(20), IN sportName VARCHAR(20))
+                BEGIN
+                	SELECT team_name
+                	FROM Team NATURAL JOIN contest NATURAL JOIN League
+                	WHERE sport_name = sportName and league_type = leagueType;
+                END
+            </pma:procedure>
+            <pma:procedure name="LeagueTeamsFull">
+                CREATE DEFINER=`cs4750em2ae`@`%` PROCEDURE `LeagueTeamsFull`(IN leagueType VARCHAR(20), IN sportName VARCHAR(20))
+                BEGIN
+                	SELECT *
+                	FROM Team NATURAL JOIN contest NATURAL JOIN League
+                	WHERE sport_name = sportName and league_type = leagueType;
+                END
+            </pma:procedure>
+            <pma:procedure name="TeamRoster">
+                CREATE DEFINER=`cs4750em2ae`@`%` PROCEDURE `TeamRoster`(IN teamName VARCHAR(20))
+                BEGIN
+                	SELECT user_id, first_name, last_name
+                	FROM User NATURAL JOIN member_of NATURAL JOIN Team
+                	WHERE team_name = teamName;
+                END
+            </pma:procedure>
+        </pma:database>
+    </pma:structure_schemas>
+
+    <!--
+    - Database: 'cs4750em2ae'
+    -->
+    <database name="cs4750em2ae">
+        <!-- Table arranges -->
+        <table name="arranges">
+            <column name="league_id">111</column>
+            <column name="game_id">7</column>
+        </table>
+        <table name="arranges">
+            <column name="league_id">111</column>
+            <column name="game_id">8</column>
+        </table>
+        <table name="arranges">
+            <column name="league_id">111</column>
+            <column name="game_id">9</column>
+        </table>
+        <table name="arranges">
+            <column name="league_id">111</column>
+            <column name="game_id">10</column>
+        </table>
+        <table name="arranges">
+            <column name="league_id">111</column>
+            <column name="game_id">11</column>
+        </table>
+        <table name="arranges">
+            <column name="league_id">111</column>
+            <column name="game_id">12</column>
+        </table>
+        <table name="arranges">
+            <column name="league_id">231</column>
+            <column name="game_id">1</column>
+        </table>
+        <table name="arranges">
+            <column name="league_id">231</column>
+            <column name="game_id">2</column>
+        </table>
+        <table name="arranges">
+            <column name="league_id">231</column>
+            <column name="game_id">3</column>
+        </table>
+        <table name="arranges">
+            <column name="league_id">231</column>
+            <column name="game_id">4</column>
+        </table>
+        <table name="arranges">
+            <column name="league_id">231</column>
+            <column name="game_id">5</column>
+        </table>
+        <table name="arranges">
+            <column name="league_id">231</column>
+            <column name="game_id">6</column>
+        </table>
+        <!-- Table Captain -->
+        <table name="Captain">
+            <column name="team_id">3</column>
+            <column name="captain">asb6y</column>
+        </table>
+        <table name="Captain">
+            <column name="team_id">6</column>
+            <column name="captain">ejb5mt</column>
+        </table>
+        <table name="Captain">
+            <column name="team_id">5</column>
+            <column name="captain">em2ae</column>
+        </table>
+        <table name="Captain">
+            <column name="team_id">4</column>
+            <column name="captain">jdw7v</column>
+        </table>
+        <table name="Captain">
+            <column name="team_id">2</column>
+            <column name="captain">jh5db</column>
+        </table>
+        <table name="Captain">
+            <column name="team_id">8</column>
+            <column name="captain">pal4ka</column>
+        </table>
+        <table name="Captain">
+            <column name="team_id">1</column>
+            <column name="captain">ts9hz</column>
+        </table>
+        <table name="Captain">
+            <column name="team_id">7</column>
+            <column name="captain">wtg2s</column>
+        </table>
+        <!-- Table contest -->
+        <table name="contest">
+            <column name="team_id">3</column>
+            <column name="league_id">111</column>
+        </table>
+        <table name="contest">
+            <column name="team_id">4</column>
+            <column name="league_id">111</column>
+        </table>
+        <table name="contest">
+            <column name="team_id">7</column>
+            <column name="league_id">111</column>
+        </table>
+        <table name="contest">
+            <column name="team_id">8</column>
+            <column name="league_id">111</column>
+        </table>
+        <table name="contest">
+            <column name="team_id">1</column>
+            <column name="league_id">231</column>
+        </table>
+        <table name="contest">
+            <column name="team_id">2</column>
+            <column name="league_id">231</column>
+        </table>
+        <table name="contest">
+            <column name="team_id">5</column>
+            <column name="league_id">231</column>
+        </table>
+        <table name="contest">
+            <column name="team_id">6</column>
+            <column name="league_id">231</column>
+        </table>
+        <!-- Table divided_into -->
+        <table name="divided_into">
+            <column name="sport_name">Basketball</column>
+            <column name="league_id">111</column>
+        </table>
+        <table name="divided_into">
+            <column name="sport_name">Soccer</column>
+            <column name="league_id">333</column>
+        </table>
+        <table name="divided_into">
+            <column name="sport_name">Volleyball</column>
+            <column name="league_id">231</column>
+        </table>
+        <!-- Table Game -->
+        <table name="Game">
+            <column name="game_id">1</column>
+            <column name="game_date">2012-04-01</column>
+            <column name="game_time">17:00:00</column>
+            <column name="game_location">Memorial Gym Court 1</column>
+            <column name="team1_id">1</column>
+            <column name="team2_id">2</column>
+            <column name="team1_score">2</column>
+            <column name="team2_score">1</column>
+        </table>
+        <table name="Game">
+            <column name="game_id">2</column>
+            <column name="game_date">2012-04-01</column>
+            <column name="game_time">17:00:00</column>
+            <column name="game_location">Memorial Gym Court 2</column>
+            <column name="team1_id">5</column>
+            <column name="team2_id">6</column>
+            <column name="team1_score">2</column>
+            <column name="team2_score">0</column>
+        </table>
+        <table name="Game">
+            <column name="game_id">3</column>
+            <column name="game_date">2012-04-08</column>
+            <column name="game_time">17:00:00</column>
+            <column name="game_location">Memorial Gym Court 1</column>
+            <column name="team1_id">1</column>
+            <column name="team2_id">5</column>
+            <column name="team1_score">1</column>
+            <column name="team2_score">2</column>
+        </table>
+        <table name="Game">
+            <column name="game_id">4</column>
+            <column name="game_date">2012-04-08</column>
+            <column name="game_time">17:00:00</column>
+            <column name="game_location">Memorial Gym Court 2</column>
+            <column name="team1_id">2</column>
+            <column name="team2_id">6</column>
+            <column name="team1_score">2</column>
+            <column name="team2_score">0</column>
+        </table>
+        <table name="Game">
+            <column name="game_id">5</column>
+            <column name="game_date">2012-04-15</column>
+            <column name="game_time">17:00:00</column>
+            <column name="game_location">Memorial Gym Court 1</column>
+            <column name="team1_id">6</column>
+            <column name="team2_id">1</column>
+            <column name="team1_score">1</column>
+            <column name="team2_score">2</column>
+        </table>
+        <table name="Game">
+            <column name="game_id">6</column>
+            <column name="game_date">2012-04-15</column>
+            <column name="game_time">17:00:00</column>
+            <column name="game_location">Memorial Gym Court 2</column>
+            <column name="team1_id">5</column>
+            <column name="team2_id">2</column>
+            <column name="team1_score">2</column>
+            <column name="team2_score">1</column>
+        </table>
+        <table name="Game">
+            <column name="game_id">7</column>
+            <column name="game_date">2012-04-02</column>
+            <column name="game_time">15:00:00</column>
+            <column name="game_location">AFC Court 1</column>
+            <column name="team1_id">3</column>
+            <column name="team2_id">4</column>
+            <column name="team1_score">21</column>
+            <column name="team2_score">11</column>
+        </table>
+        <table name="Game">
+            <column name="game_id">8</column>
+            <column name="game_date">2012-04-02</column>
+            <column name="game_time">15:00:00</column>
+            <column name="game_location">AFC Court 2</column>
+            <column name="team1_id">7</column>
+            <column name="team2_id">8</column>
+            <column name="team1_score">24</column>
+            <column name="team2_score">20</column>
+        </table>
+        <table name="Game">
+            <column name="game_id">9</column>
+            <column name="game_date">2012-04-09</column>
+            <column name="game_time">15:00:00</column>
+            <column name="game_location">AFC Court 1</column>
+            <column name="team1_id">3</column>
+            <column name="team2_id">7</column>
+            <column name="team1_score">21</column>
+            <column name="team2_score">32</column>
+        </table>
+        <table name="Game">
+            <column name="game_id">10</column>
+            <column name="game_date">2012-04-09</column>
+            <column name="game_time">15:00:00</column>
+            <column name="game_location">AFC Court 2</column>
+            <column name="team1_id">4</column>
+            <column name="team2_id">8</column>
+            <column name="team1_score">12</column>
+            <column name="team2_score">30</column>
+        </table>
+        <table name="Game">
+            <column name="game_id">11</column>
+            <column name="game_date">2012-04-16</column>
+            <column name="game_time">15:00:00</column>
+            <column name="game_location">AFC Court 1</column>
+            <column name="team1_id">4</column>
+            <column name="team2_id">7</column>
+            <column name="team1_score">19</column>
+            <column name="team2_score">24</column>
+        </table>
+        <table name="Game">
+            <column name="game_id">12</column>
+            <column name="game_date">2012-04-16</column>
+            <column name="game_time">15:00:00</column>
+            <column name="game_location">AFC Court 2</column>
+            <column name="team1_id">8</column>
+            <column name="team2_id">3</column>
+            <column name="team1_score">27</column>
+            <column name="team2_score">17</column>
+        </table>
+        <!-- Table League -->
+        <table name="League">
+            <column name="league_id">111</column>
+            <column name="league_type">Mens</column>
+            <column name="sport_name">Basketball</column>
+        </table>
+        <table name="League">
+            <column name="league_id">231</column>
+            <column name="league_type">CoRec</column>
+            <column name="sport_name">Volleyball</column>
+        </table>
+        <table name="League">
+            <column name="league_id">333</column>
+            <column name="league_type">Womens</column>
+            <column name="sport_name">Soccer</column>
+        </table>
+        <!-- Table member_of -->
+        <table name="member_of">
+            <column name="user_id">bjs9v</column>
+            <column name="team_id">1</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">rvp11</column>
+            <column name="team_id">1</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">smh7zy</column>
+            <column name="team_id">1</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">ts9hz</column>
+            <column name="team_id">1</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">wsn8x</column>
+            <column name="team_id">1</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">jh5db</column>
+            <column name="team_id">2</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">jsh6re</column>
+            <column name="team_id">2</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">jsk9bs</column>
+            <column name="team_id">2</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">mdf7bh</column>
+            <column name="team_id">2</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">plr6dd</column>
+            <column name="team_id">2</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">aac8t</column>
+            <column name="team_id">3</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">asb6y</column>
+            <column name="team_id">3</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">dwh7n</column>
+            <column name="team_id">3</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">pepe3</column>
+            <column name="team_id">3</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">smh7zy</column>
+            <column name="team_id">3</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">wsn8x</column>
+            <column name="team_id">3</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">bks3cq</column>
+            <column name="team_id">4</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">cw3zm</column>
+            <column name="team_id">4</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">dac3mf</column>
+            <column name="team_id">4</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">jdw7v</column>
+            <column name="team_id">4</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">psc9qb</column>
+            <column name="team_id">4</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">em2ae</column>
+            <column name="team_id">5</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">lys3h</column>
+            <column name="team_id">5</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">mjd7v</column>
+            <column name="team_id">5</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">wtg2s</column>
+            <column name="team_id">5</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">ccc5z</column>
+            <column name="team_id">6</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">ejb5mt</column>
+            <column name="team_id">6</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">jdc8tv</column>
+            <column name="team_id">6</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">kaf3pg</column>
+            <column name="team_id">6</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">bjs9v</column>
+            <column name="team_id">7</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">cjb9x</column>
+            <column name="team_id">7</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">em2ae</column>
+            <column name="team_id">7</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">mjd7v</column>
+            <column name="team_id">7</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">wtg2s</column>
+            <column name="team_id">7</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">cesc4</column>
+            <column name="team_id">8</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">djh5gb</column>
+            <column name="team_id">8</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">kht3m</column>
+            <column name="team_id">8</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">kzl7ay</column>
+            <column name="team_id">8</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">pal4ka</column>
+            <column name="team_id">8</column>
+        </table>
+        <table name="member_of">
+            <column name="user_id">twc3jd</column>
+            <column name="team_id">8</column>
+        </table>
+        <!-- Table Schedule -->
+        <table name="Schedule">
+            <column name="league_id">111</column>
+            <column name="start_date">2012-04-01</column>
+            <column name="end_date">2012-04-30</column>
+            <column name="reg_deadline">2012-03-25</column>
+        </table>
+        <table name="Schedule">
+            <column name="league_id">231</column>
+            <column name="start_date">2012-04-01</column>
+            <column name="end_date">2012-04-30</column>
+            <column name="reg_deadline">2012-03-25</column>
+        </table>
+        <table name="Schedule">
+            <column name="league_id">333</column>
+            <column name="start_date">2012-05-01</column>
+            <column name="end_date">2012-05-31</column>
+            <column name="reg_deadline">2012-04-30</column>
+        </table>
+        <!-- Table Sport -->
+        <table name="Sport">
+            <column name="sport_name">Basketball</column>
+            <column name="min_roster">5</column>
+        </table>
+        <table name="Sport">
+            <column name="sport_name">Soccer</column>
+            <column name="min_roster">3</column>
+        </table>
+        <table name="Sport">
+            <column name="sport_name">Volleyball</column>
+            <column name="min_roster">3</column>
+        </table>
+        <!-- Table Stats -->
+        <table name="Stats">
+            <column name="team_id">1</column>
+            <column name="played">3</column>
+            <column name="wins">2</column>
+            <column name="losses">1</column>
+            <column name="draws">0</column>
+            <column name="ncs">0</column>
+        </table>
+        <table name="Stats">
+            <column name="team_id">2</column>
+            <column name="played">3</column>
+            <column name="wins">1</column>
+            <column name="losses">2</column>
+            <column name="draws">0</column>
+            <column name="ncs">0</column>
+        </table>
+        <table name="Stats">
+            <column name="team_id">3</column>
+            <column name="played">3</column>
+            <column name="wins">1</column>
+            <column name="losses">2</column>
+            <column name="draws">0</column>
+            <column name="ncs">0</column>
+        </table>
+        <table name="Stats">
+            <column name="team_id">4</column>
+            <column name="played">3</column>
+            <column name="wins">0</column>
+            <column name="losses">3</column>
+            <column name="draws">0</column>
+            <column name="ncs">0</column>
+        </table>
+        <table name="Stats">
+            <column name="team_id">5</column>
+            <column name="played">3</column>
+            <column name="wins">3</column>
+            <column name="losses">0</column>
+            <column name="draws">0</column>
+            <column name="ncs">0</column>
+        </table>
+        <table name="Stats">
+            <column name="team_id">6</column>
+            <column name="played">3</column>
+            <column name="wins">0</column>
+            <column name="losses">3</column>
+            <column name="draws">0</column>
+            <column name="ncs">0</column>
+        </table>
+        <table name="Stats">
+            <column name="team_id">7</column>
+            <column name="played">3</column>
+            <column name="wins">3</column>
+            <column name="losses">0</column>
+            <column name="draws">0</column>
+            <column name="ncs">0</column>
+        </table>
+        <table name="Stats">
+            <column name="team_id">8</column>
+            <column name="played">3</column>
+            <column name="wins">2</column>
+            <column name="losses">1</column>
+            <column name="draws">0</column>
+            <column name="ncs">0</column>
+        </table>
+        <!-- Table Team -->
+        <table name="Team">
+            <column name="team_id">6</column>
+            <column name="team_name">Apple Core</column>
+        </table>
+        <table name="Team">
+            <column name="team_id">1</column>
+            <column name="team_name">Flying Honey Badgers</column>
+        </table>
+        <table name="Team">
+            <column name="team_id">8</column>
+            <column name="team_name">Hoo Tang Clan</column>
+        </table>
+        <table name="Team">
+            <column name="team_id">4</column>
+            <column name="team_name">Monkey Do</column>
+        </table>
+        <table name="Team">
+            <column name="team_id">3</column>
+            <column name="team_name">Sweet Boys</column>
+        </table>
+        <table name="Team">
+            <column name="team_id">5</column>
+            <column name="team_name">The BLT</column>
+        </table>
+        <table name="Team">
+            <column name="team_id">2</column>
+            <column name="team_name">The Bojangled Tacoca</column>
+        </table>
+        <table name="Team">
+            <column name="team_id">7</column>
+            <column name="team_name">Young Jedi Knights</column>
+        </table>
+        <!-- Table User -->
+        <table name="User">
+            <column name="user_id">aac8t</column>
+            <column name="password">¤’p¯EÙÉ&quot;ÈS</column>
+            <column name="last_name">Cardoza</column>
+            <column name="first_name">Aaron</column>
+            <column name="address">109 Montpelier St, Charlottesville, VA 22903</column>
+            <column name="phone">8045559343</column>
+            <column name="email">aac8t@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">asb6y</column>
+            <column name="password"></column>
+            <column name="last_name">Bryan</column>
+            <column name="first_name">Alex</column>
+            <column name="address">109 Montpelier St, Charlottesville, VA 22903</column>
+            <column name="phone">8430215572</column>
+            <column name="email">asb6y@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">bjs9v</column>
+            <column name="password"></column>
+            <column name="last_name">Shoemaker</column>
+            <column name="first_name">Brian</column>
+            <column name="address">109 Montpelier St, Charlottesville, VA 22903</column>
+            <column name="phone">7241563201</column>
+            <column name="email">bjs9v@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">bks3cq</column>
+            <column name="password"></column>
+            <column name="last_name">Stone</column>
+            <column name="first_name">Keenan</column>
+            <column name="address">222 Brandon Ave, Charlottesville, VA 22903</column>
+            <column name="phone">6627479091</column>
+            <column name="email">bks3cq@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">ccc5z</column>
+            <column name="password"></column>
+            <column name="last_name">Cundiff</column>
+            <column name="first_name">Clay</column>
+            <column name="address">3129 Shamrock Rd, Charlottesville, VA 22903</column>
+            <column name="phone">4344320925</column>
+            <column name="email">ccc5z@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">cesc4</column>
+            <column name="password">ìÁ´q&gt;ïAÆîaïcòN›</column>
+            <column name="last_name">Fabregas</column>
+            <column name="first_name">Francesc</column>
+            <column name="address">143 La Masia Way, Charlottesville, VA</column>
+            <column name="phone">4342425302</column>
+            <column name="email">cesc4@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">cjb9x</column>
+            <column name="password"></column>
+            <column name="last_name">Benusa</column>
+            <column name="first_name">Colin</column>
+            <column name="address">109 Montpelier St, Charlottesville, VA 22903</column>
+            <column name="phone">8043329583</column>
+            <column name="email">cjb9x@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">cw3zm</column>
+            <column name="password"></column>
+            <column name="last_name">Wang</column>
+            <column name="first_name">Colvin</column>
+            <column name="address">435 Ivy Rd, Charlottesville, VA 22904</column>
+            <column name="phone">7037430112</column>
+            <column name="email">cw3zm@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">dac3mf</column>
+            <column name="password"></column>
+            <column name="last_name">Chu</column>
+            <column name="first_name">Daniel</column>
+            <column name="address">8329 Emmet St, Charlottesville, VA 22904</column>
+            <column name="phone">8042228905</column>
+            <column name="email">dac3mf@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">djh5gb</column>
+            <column name="password"></column>
+            <column name="last_name">Hui</column>
+            <column name="first_name">Donovan</column>
+            <column name="address">444 Maywood Ave, Charlottesville, VA 22903</column>
+            <column name="phone">7038940164</column>
+            <column name="email">djh5gb@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">dwh7n</column>
+            <column name="password"></column>
+            <column name="last_name">Hodges</column>
+            <column name="first_name">David</column>
+            <column name="address">4501 Shamrock Rd, Charlottesville, VA 22904</column>
+            <column name="phone">5713140035</column>
+            <column name="email">dwh7n@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">ejb5mt</column>
+            <column name="password"></column>
+            <column name="last_name">Bombgardner</column>
+            <column name="first_name">Eric</column>
+            <column name="address">2330 Price Ave, Charlottesville, VA 22903</column>
+            <column name="phone">5711198244</column>
+            <column name="email">ejb5mt@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">em2ae</column>
+            <column name="password"></column>
+            <column name="last_name">Moy</column>
+            <column name="first_name">Eugene</column>
+            <column name="address">109 Montpelier St, Charlottesville, VA 22903</column>
+            <column name="phone">7038231184</column>
+            <column name="email">em2ae@virginia.edu</column>
+            <column name="admin">1</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">jdc8tv</column>
+            <column name="password"></column>
+            <column name="last_name">Case</column>
+            <column name="first_name">Josiah</column>
+            <column name="address">3129 Shamrock Rd, Charlottesville, VA 22903</column>
+            <column name="phone">4347771153</column>
+            <column name="email">jdc8tv@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">jdw7v</column>
+            <column name="password"></column>
+            <column name="last_name">Watson</column>
+            <column name="first_name">Jack</column>
+            <column name="address">305 Lewis Mountain Rd, Charlottesville, VA 22904</column>
+            <column name="phone">8044442218</column>
+            <column name="email">jdw7v@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">jh5db</column>
+            <column name="password"></column>
+            <column name="last_name">Hong</column>
+            <column name="first_name">Jiihn</column>
+            <column name="address">3129 Shamrock Rd, Charlottesville, VA 22903</column>
+            <column name="phone">7038883699</column>
+            <column name="email">jh5db@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">jsh6re</column>
+            <column name="password"></column>
+            <column name="last_name">Hife</column>
+            <column name="first_name">John</column>
+            <column name="address">2330 Price Ave, Charlottesville, VA 22903</column>
+            <column name="phone">7033315632</column>
+            <column name="email">jsh6re@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">jsk9bs</column>
+            <column name="password"></column>
+            <column name="last_name">Kim</column>
+            <column name="first_name">Jeremy</column>
+            <column name="address">3129 Shamrock Rd, Charlottesville, VA 22903</column>
+            <column name="phone">7034822291</column>
+            <column name="email">jsk9bs@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">kaf3pg</column>
+            <column name="password"></column>
+            <column name="last_name">Flom</column>
+            <column name="first_name">Kelly</column>
+            <column name="address">118 Appletree Rd, Charlottesville, VA 22903</column>
+            <column name="phone">4348117482</column>
+            <column name="email">kaf3pg@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">0</column>
+        </table>
+        <table name="User">
+            <column name="user_id">kht3m</column>
+            <column name="password"></column>
+            <column name="last_name">Tam</column>
+            <column name="first_name">Jeff</column>
+            <column name="address">2100 Jefferson Park Ave, Charlottesville, VA 22903</column>
+            <column name="phone">5714900811</column>
+            <column name="email">kht3m@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">kzl7ay</column>
+            <column name="password"></column>
+            <column name="last_name">Liu</column>
+            <column name="first_name">Kevin</column>
+            <column name="address">202 Kellog, Charlottesville, VA 22904</column>
+            <column name="phone">4345679220</column>
+            <column name="email">kzl7ay@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">lys3h</column>
+            <column name="password"></column>
+            <column name="last_name">Song</column>
+            <column name="first_name">Lucy</column>
+            <column name="address">111 Montpelier St, VA 22903</column>
+            <column name="phone">8045028873</column>
+            <column name="email">lys3h@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">0</column>
+        </table>
+        <table name="User">
+            <column name="user_id">mdf7bh</column>
+            <column name="password"></column>
+            <column name="last_name">Fuller</column>
+            <column name="first_name">Margaret</column>
+            <column name="address">118 Appletree Rd, Charlottesville, VA 22903</column>
+            <column name="phone">7575962226</column>
+            <column name="email">mdf7bh@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">0</column>
+        </table>
+        <table name="User">
+            <column name="user_id">mjd7v</column>
+            <column name="password"></column>
+            <column name="last_name">Davis</column>
+            <column name="first_name">Matthew</column>
+            <column name="address">Apt 17, 1910 Jefferson Park Ave, VA 22903</column>
+            <column name="phone">7572424681</column>
+            <column name="email">mjd7v@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">pal4ka</column>
+            <column name="password"></column>
+            <column name="last_name">Le</column>
+            <column name="first_name">Peter</column>
+            <column name="address">2330 Price Ave, Charlottesville, VA 22903</column>
+            <column name="phone">7037328005</column>
+            <column name="email">pal4ka@virginia.edu</column>
+            <column name="admin">1</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">pepe3</column>
+            <column name="password">yÙ`;(|@N©ž÷ÌT!</column>
+            <column name="last_name">Pepe</column>
+            <column name="first_name">Simone</column>
+            <column name="address">132 La Masia Way, Charlottesville, VA</column>
+            <column name="phone">4345658249</column>
+            <column name="email">pepe3@virginia,edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">plr6dd</column>
+            <column name="password"></column>
+            <column name="last_name">Reens</column>
+            <column name="first_name">Philip</column>
+            <column name="address">3129 Shamrock Rd, Charlottesville, VA 22903</column>
+            <column name="phone">5719000721</column>
+            <column name="email">plr6dd@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">psc9qb</column>
+            <column name="password"></column>
+            <column name="last_name">Chu</column>
+            <column name="first_name">Patrick</column>
+            <column name="address">8329 Emmet St, Charlottesville, VA 22904</column>
+            <column name="phone">8042228904</column>
+            <column name="email">psc9qb@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">rvp11</column>
+            <column name="password">¤’p¯EÙÉ&quot;ÈS</column>
+            <column name="last_name">Van Persie</column>
+            <column name="first_name">Robin</column>
+            <column name="address">111 Gunner Way</column>
+            <column name="phone">5714230040</column>
+            <column name="email">rvp11@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">smh7zy</column>
+            <column name="password"></column>
+            <column name="last_name">Hodson</column>
+            <column name="first_name">Shane</column>
+            <column name="address">109 Montpelier St, Charlottesville, VA 22903</column>
+            <column name="phone">7579428600</column>
+            <column name="email">smh7zy@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">ts9hz</column>
+            <column name="password"></column>
+            <column name="last_name">Sherman</column>
+            <column name="first_name">Tatyana</column>
+            <column name="address">312 Echols, Charlottesville, Virginia 22904</column>
+            <column name="phone">7571738297</column>
+            <column name="email">ts9hz@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">0</column>
+        </table>
+        <table name="User">
+            <column name="user_id">twc3jd</column>
+            <column name="password"></column>
+            <column name="last_name">Conway</column>
+            <column name="first_name">Tim</column>
+            <column name="address">641 Clark Ct, Charlottesville, VA 22903</column>
+            <column name="phone">8043218112</column>
+            <column name="email">twc3jd@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">vsw2t</column>
+            <column name="password">¿²3QãXQ9Z·!õé5</column>
+            <column name="last_name">Williams</column>
+            <column name="first_name">Venus</column>
+            <column name="address">4539 Serenity Way</column>
+            <column name="phone">4924233389</column>
+            <column name="email">vsw2t@virginia.edu</column>
+            <column name="admin">NULL</column>
+            <column name="gender">0</column>
+        </table>
+        <table name="User">
+            <column name="user_id">wsn8x</column>
+            <column name="password"></column>
+            <column name="last_name">Nimjareansuk</column>
+            <column name="first_name">Shay</column>
+            <column name="address">109 Montpelier St, Charlottesville, VA 22903</column>
+            <column name="phone">7034542277</column>
+            <column name="email">wsn8x@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">wtg2s</column>
+            <column name="password"></column>
+            <column name="last_name">Griffin</column>
+            <column name="first_name">William</column>
+            <column name="address">109 Montpelier St, Charlottesville, VA 22903</column>
+            <column name="phone">7576061236</column>
+            <column name="email">wtg2s@virginia.edu</column>
+            <column name="admin">0</column>
+            <column name="gender">1</column>
+        </table>
+        <table name="User">
+            <column name="user_id">www3c</column>
+            <column name="password">þ ñöþÞ½
+’[A”Þ¬</column>
+            <column name="last_name">Wang</column>
+            <column name="first_name">Will</column>
+            <column name="address">123 Main Street</column>
+            <column name="phone">7039218843</column>
+            <column name="email">www3c@virginia.edu</column>
+            <column name="admin">1</column>
+            <column name="gender">1</column>
+        </table>
+    </database>
+</pma_xml_export>

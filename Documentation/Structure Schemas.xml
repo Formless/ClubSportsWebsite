@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+- phpMyAdmin XML Dump
+- version 3.3.5.1
+- http://www.phpmyadmin.net
+-
+- Host: localhost
+- Generation Time: Apr 30, 2012 at 12:55 PM
+- Server version: 5.1.62
+- PHP Version: 5.3.2-1ubuntu4.14
+-->
+
+<pma_xml_export version="1.0" xmlns:pma="http://www.phpmyadmin.net/some_doc_url/">
+    <!--
+    - Structure schemas
+    -->
+    <pma:structure_schemas>
+        <pma:database name="cs4750em2ae" collation="latin1_swedish_ci" charset="latin1">
+            <pma:table name="arranges">
+                CREATE TABLE `arranges` (
+                  `league_id` int(4) DEFAULT NULL,
+                  `game_id` int(6) NOT NULL DEFAULT '0',
+                  PRIMARY KEY (`game_id`),
+                  KEY `league_id` (`league_id`),
+                  CONSTRAINT `arranges_ibfk_1` FOREIGN KEY (`game_id`) REFERENCES `Game` (`game_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                  CONSTRAINT `arranges_ibfk_2` FOREIGN KEY (`league_id`) REFERENCES `League` (`league_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:table name="Captain">
+                CREATE TABLE `Captain` (
+                  `team_id` int(5) NOT NULL DEFAULT '0',
+                  `captain` varchar(7) DEFAULT NULL,
+                  PRIMARY KEY (`team_id`),
+                  UNIQUE KEY `team_id` (`team_id`),
+                  KEY `captain` (`captain`),
+                  CONSTRAINT `Captain_ibfk_1` FOREIGN KEY (`team_id`) REFERENCES `Team` (`team_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                  CONSTRAINT `Captain_ibfk_2` FOREIGN KEY (`captain`) REFERENCES `User` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:table name="contest">
+                CREATE TABLE `contest` (
+                  `team_id` int(5) NOT NULL DEFAULT '0',
+                  `league_id` int(4) DEFAULT NULL,
+                  PRIMARY KEY (`team_id`),
+                  KEY `league_id` (`league_id`),
+                  CONSTRAINT `contest_ibfk_1` FOREIGN KEY (`team_id`) REFERENCES `Team` (`team_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                  CONSTRAINT `contest_ibfk_2` FOREIGN KEY (`league_id`) REFERENCES `League` (`league_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:table name="divided_into">
+                CREATE TABLE `divided_into` (
+                  `sport_name` varchar(20) DEFAULT NULL,
+                  `league_id` int(4) NOT NULL DEFAULT '0',
+                  PRIMARY KEY (`league_id`),
+                  KEY `sport_name` (`sport_name`),
+                  CONSTRAINT `divided_into_ibfk_1` FOREIGN KEY (`league_id`) REFERENCES `League` (`league_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                  CONSTRAINT `divided_into_ibfk_2` FOREIGN KEY (`sport_name`) REFERENCES `Sport` (`sport_name`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:table name="Game">
+                CREATE TABLE `Game` (
+                  `game_id` int(6) NOT NULL AUTO_INCREMENT,
+                  `game_date` date DEFAULT NULL,
+                  `game_time` time DEFAULT NULL,
+                  `game_location` varchar(20) DEFAULT NULL,
+                  `team1_id` int(5) DEFAULT NULL,
+                  `team2_id` int(5) DEFAULT NULL,
+                  `team1_score` int(3) DEFAULT NULL,
+                  `team2_score` int(3) DEFAULT NULL,
+                  PRIMARY KEY (`game_id`),
+                  UNIQUE KEY `game_id` (`game_id`)
+                ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:view name="leaders">
+                CREATE ALGORITHM=UNDEFINED DEFINER=`cs4750em2ae`@`%` SQL SECURITY DEFINER VIEW `cs4750em2ae`.`leaders` AS select `cs4750em2ae`.`League`.`sport_name` AS `sport_name`,`cs4750em2ae`.`League`.`league_type` AS `league_type`,`cs4750em2ae`.`League`.`league_id` AS `league_id`,`cs4750em2ae`.`Schedule`.`end_date` AS `end_date`,`cs4750em2ae`.`Team`.`team_name` AS `team_name`,`cs4750em2ae`.`Stats`.`wins` AS `wins`,`cs4750em2ae`.`Stats`.`losses` AS `losses`,`cs4750em2ae`.`Stats`.`draws` AS `draws`,`cs4750em2ae`.`Stats`.`ncs` AS `ncs` from ((((`cs4750em2ae`.`Team` join `cs4750em2ae`.`Stats` on((`cs4750em2ae`.`Team`.`team_id` = `cs4750em2ae`.`Stats`.`team_id`))) join `cs4750em2ae`.`League`) join `cs4750em2ae`.`contest` on(((`cs4750em2ae`.`Team`.`team_id` = `cs4750em2ae`.`contest`.`team_id`) and (`cs4750em2ae`.`League`.`league_id` = `cs4750em2ae`.`contest`.`league_id`)))) join `cs4750em2ae`.`Schedule` on((`cs4750em2ae`.`League`.`league_id` = `cs4750em2ae`.`Schedule`.`league_id`))) where (`cs4750em2ae`.`Stats`.`wins` = (select max(`cs4750em2ae`.`Stats`.`wins`) from (((`cs4750em2ae`.`Team` join `cs4750em2ae`.`Stats` on((`cs4750em2ae`.`Team`.`team_id` = `cs4750em2ae`.`Stats`.`team_id`))) join `cs4750em2ae`.`League`) join `cs4750em2ae`.`Schedule` on((`cs4750em2ae`.`League`.`league_id` = `cs4750em2ae`.`Schedule`.`league_id`)))));
+            </pma:view>
+            <pma:table name="League">
+                CREATE TABLE `League` (
+                  `league_id` int(4) NOT NULL AUTO_INCREMENT,
+                  `league_type` varchar(10) NOT NULL,
+                  `sport_name` varchar(20) NOT NULL,
+                  PRIMARY KEY (`league_id`,`sport_name`),
+                  UNIQUE KEY `league_id` (`league_id`),
+                  KEY `sport_name` (`sport_name`),
+                  CONSTRAINT `League_ibfk_1` FOREIGN KEY (`sport_name`) REFERENCES `Sport` (`sport_name`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB AUTO_INCREMENT=334 DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:table name="member_of">
+                CREATE TABLE `member_of` (
+                  `user_id` varchar(7) NOT NULL DEFAULT '',
+                  `team_id` int(5) NOT NULL DEFAULT '0',
+                  PRIMARY KEY (`user_id`,`team_id`),
+                  KEY `team_id` (`team_id`),
+                  CONSTRAINT `member_of_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `User` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                  CONSTRAINT `member_of_ibfk_2` FOREIGN KEY (`team_id`) REFERENCES `Team` (`team_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:table name="Schedule">
+                CREATE TABLE `Schedule` (
+                  `league_id` int(4) NOT NULL DEFAULT '0',
+                  `start_date` date NOT NULL DEFAULT '0000-00-00',
+                  `end_date` date DEFAULT NULL,
+                  `reg_deadline` date DEFAULT NULL,
+                  PRIMARY KEY (`league_id`,`start_date`),
+                  CONSTRAINT `Schedule_ibfk_1` FOREIGN KEY (`league_id`) REFERENCES `League` (`league_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:table name="Sport">
+                CREATE TABLE `Sport` (
+                  `sport_name` varchar(20) NOT NULL,
+                  `min_roster` int(2) NOT NULL,
+                  PRIMARY KEY (`sport_name`),
+                  UNIQUE KEY `sport_name` (`sport_name`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:table name="Stats">
+                CREATE TABLE `Stats` (
+                  `team_id` int(5) NOT NULL DEFAULT '0',
+                  `played` int(2) DEFAULT NULL,
+                  `wins` int(2) DEFAULT NULL,
+                  `losses` int(2) DEFAULT NULL,
+                  `draws` int(2) DEFAULT NULL,
+                  `ncs` int(2) DEFAULT NULL,
+                  PRIMARY KEY (`team_id`),
+                  CONSTRAINT `Stats_ibfk_1` FOREIGN KEY (`team_id`) REFERENCES `Team` (`team_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:table name="Team">
+                CREATE TABLE `Team` (
+                  `team_id` int(5) NOT NULL AUTO_INCREMENT,
+                  `team_name` varchar(20) NOT NULL,
+                  PRIMARY KEY (`team_id`),
+                  UNIQUE KEY `team_id` (`team_id`),
+                  UNIQUE KEY `team_name` (`team_name`)
+                ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:table name="User">
+                CREATE TABLE `User` (
+                  `user_id` varchar(7) NOT NULL,
+                  `password` varchar(32) NOT NULL,
+                  `last_name` varchar(20) NOT NULL,
+                  `first_name` varchar(20) NOT NULL,
+                  `address` varchar(60) DEFAULT NULL,
+                  `phone` varchar(10) DEFAULT NULL,
+                  `email` varchar(30) DEFAULT NULL,
+                  `admin` int(1) DEFAULT NULL,
+                  `gender` int(1) DEFAULT NULL,
+                  PRIMARY KEY (`user_id`),
+                  UNIQUE KEY `user_id` (`user_id`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+            </pma:table>
+            <pma:procedure name="createTeam">
+                CREATE DEFINER=`cs4750em2ae`@`%` PROCEDURE `createTeam`(IN teamID INT(5), IN userID VARCHAR(7), IN leagueID INT(4))
+                BEGIN
+                	INSERT INTO Captain(team_id, captain) VALUES (teamID, userID );
+                	INSERT INTO member_of(user_id, team_id) VALUES (userID, teamID );
+                	INSERT INTO Stats(team_id, played, wins, losses, draws, ncs) VALUES (teamID, '0', '0',  '0', '0', '0');
+                	INSERT INTO contest(team_id, league_id) VALUES (teamID, leagueID);
+                END
+            </pma:procedure>
+            <pma:procedure name="LeagueTeams">
+                CREATE DEFINER=`cs4750em2ae`@`%` PROCEDURE `LeagueTeams`(IN leagueType VARCHAR(20), IN sportName VARCHAR(20))
+                BEGIN
+                	SELECT team_name
+                	FROM Team NATURAL JOIN contest NATURAL JOIN League
+                	WHERE sport_name = sportName and league_type = leagueType;
+                END
+            </pma:procedure>
+            <pma:procedure name="LeagueTeamsFull">
+                CREATE DEFINER=`cs4750em2ae`@`%` PROCEDURE `LeagueTeamsFull`(IN leagueType VARCHAR(20), IN sportName VARCHAR(20))
+                BEGIN
+                	SELECT *
+                	FROM Team NATURAL JOIN contest NATURAL JOIN League
+                	WHERE sport_name = sportName and league_type = leagueType;
+                END
+            </pma:procedure>
+            <pma:procedure name="TeamRoster">
+                CREATE DEFINER=`cs4750em2ae`@`%` PROCEDURE `TeamRoster`(IN teamName VARCHAR(20))
+                BEGIN
+                	SELECT user_id, first_name, last_name
+                	FROM User NATURAL JOIN member_of NATURAL JOIN Team
+                	WHERE team_name = teamName;
+                END
+            </pma:procedure>
+        </pma:database>
+    </pma:structure_schemas>
+</pma_xml_export>
